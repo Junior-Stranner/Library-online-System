@@ -23,8 +23,8 @@ public class Usuario {
         this.email = email;
         this.senha = senha;
     }
-    public Usuario(){
-        
+
+    public Usuario() {
     }
 
     public int getId() {

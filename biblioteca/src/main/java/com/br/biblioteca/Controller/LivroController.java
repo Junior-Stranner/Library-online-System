@@ -3,20 +3,19 @@ package com.br.biblioteca.Controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.catalina.startup.ClassLoaderFactory.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.br.biblioteca.Model.Livro;
 import com.br.biblioteca.Repository.LivroRepository;
-
-import jakarta.transaction.Transactional;
 
 @Controller
 public class LivroController {
@@ -26,20 +25,21 @@ public class LivroController {
     @Autowired
     LivroRepository repository;
 
-    @GetMapping("/home")
-    public String home() {
-        return "home";
+    @GetMapping("/homeLivro")
+    public String homeLivro() {
+        return "homeLivro";
     }
 
-    @PostMapping("/home")
+    @PostMapping("/homeLivro")
     public String cadastro(Livro livro) {
         repository.save(livro);
-        return "redirect:/lista";
+        return "redirect:/listaLivro";
     }
 
-    @GetMapping("/lista")
-    public ModelAndView lista() {
-        ModelAndView mv = new ModelAndView("livros");
+    @GetMapping("/listaLivro")
+    public ModelAndView listaLivro() {
+        ModelAndView mv = new ModelAndView("listaLivro");
+        ArrayList<Livro> livros = new ArrayList<>();
         livros = (ArrayList<Livro>) repository.findAll();
         mv.addObject("livros", livros);
         return mv;
@@ -48,12 +48,12 @@ public class LivroController {
     @GetMapping("/excluir/{id}")
     public String excluir(@PathVariable("id") int id) {
         repository.deleteById(id);
-        return "redirect:/lista";
+        return "redirect:/listaLivro";
     }
 
     @GetMapping("/editar/{id}")
     public ModelAndView editar(@PathVariable("id") int id) {
-        ModelAndView mv = new ModelAndView("home");
+        ModelAndView mv = new ModelAndView("homeLivro");
         Livro livro = new Livro();
         livro = repository.findById(id).get();
         mv.addObject("livro", livro);
@@ -62,10 +62,12 @@ public class LivroController {
 
     @PatchMapping
     @Transactional
-    public ResponseEntity<Object> reservar(Livro livro){
-        livro.reservar();
-        repository.save(livro);
-        return ResponseEntity.noContent().build();
-
+    public boolean reservar(Livro livro) {
+        if (livro.getId() > 0 && livro.getStatus()) {
+            livro.reservar();
+            repository.save(livro);
+            return livro.setStatus(true);
+        } else
+            return livro.setStatus(false);
     }
 }

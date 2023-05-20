@@ -13,7 +13,6 @@ import org.springframework.web.servlet.ModelAndView;
 import com.br.biblioteca.Model.Usuario;
 import com.br.biblioteca.Repository.UsuarioRepository;
 
-
 @Controller
 public class UsuarioController {
 
@@ -22,42 +21,53 @@ public class UsuarioController {
     @Autowired
     UsuarioRepository repository;
 
-    @GetMapping("/home")
-    public String home() {
-        return "home";
+    @GetMapping("/loginUsuario")
+    public String login() {
+        return "loginUsuario";
     }
 
-    @PostMapping("/home")
-    public String lista(Usuario usuario) {
+    @PostMapping("/verificaLogin")
+    public String verifica(Usuario usuario) {
+        ArrayList<Usuario> usuarios = new ArrayList<>();
+        usuarios = (ArrayList<Usuario>) repository.findAll();
+        for (Usuario usuario1 : usuarios) {
+            if (usuario1.getSenha().equalsIgnoreCase(usuario.getSenha())
+                    && usuario1.getEmail().equalsIgnoreCase(usuario.getEmail()))
+                ;
+        }
+        return "redirect:/listaLivro";
+    }
+
+    @PostMapping("/listaUsuario")
+    public String listaUsuario(Usuario usuario) {
         repository.save(usuario);
-        return "redirect:/lista";
+        return "redirect:/listaUsuario";
     }
 
-    @GetMapping("/lista")
-    public ModelAndView lista() {
-        ModelAndView mv = new ModelAndView("lista");
+    @GetMapping("/listaUsuario")
+    public ModelAndView listaUsuario() {
+        ModelAndView mv = new ModelAndView("listaUsuario");
+        ArrayList<Usuario> usuarios = new ArrayList<>();
         usuarios = (ArrayList<Usuario>) repository.findAll();
         mv.addObject("usuarios", usuarios);
         return mv;
     }
 
-    @GetMapping("/exluir{id}")
+    @GetMapping("/excluir{id}")
     public String excluir(@PathVariable("id") int id) {
         repository.deleteById(id);
 
-        return "redirect:/lista";
+        return "redirect:/listaUsuario";
 
     }
 
     @GetMapping("/editar{id}")
     public ModelAndView editar(@PathVariable("id") int id) {
-        ModelAndView mv = new ModelAndView("lista");
+        ModelAndView mv = new ModelAndView("login");
         Usuario usuario = new Usuario();
         usuario = repository.findById(id).get();
         mv.addObject("usuario", usuario);
         return mv;
 
     }
-
-  
 }

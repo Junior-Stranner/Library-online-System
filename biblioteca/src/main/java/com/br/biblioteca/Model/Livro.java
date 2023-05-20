@@ -28,8 +28,7 @@ public class Livro {
         this.status = status;
     }
 
-    public Livro(){
-
+    public Livro() {
     }
 
     public int getId() {
@@ -76,8 +75,8 @@ public class Livro {
         return status;
     }
 
-    public void setStatus(boolean status) {
-        this.status = status;
+    public boolean setStatus(boolean status) {
+        return this.status = status;
     }
 
     public void reservar() {
